@@ -1,0 +1,4 @@
+/home/reaper/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/reaper/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64/ninja -G Ninja -S /mnt/hdd/nexus/projects/0003-nettunneller/nettunneller-server -B /mnt/hdd/nexus/projects/0003-nettunneller/nettunneller-server/cmake-build-debug
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /mnt/hdd/nexus/projects/0003-nettunneller/nettunneller-server/cmake-build-debug

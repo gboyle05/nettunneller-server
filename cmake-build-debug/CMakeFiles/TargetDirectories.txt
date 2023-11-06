@@ -1,0 +1,3 @@
+/mnt/hdd/nexus/projects/0003-nettunneller/nettunneller-server/cmake-build-debug/CMakeFiles/nettunneller-server.dir
+/mnt/hdd/nexus/projects/0003-nettunneller/nettunneller-server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/mnt/hdd/nexus/projects/0003-nettunneller/nettunneller-server/cmake-build-debug/CMakeFiles/rebuild_cache.dir

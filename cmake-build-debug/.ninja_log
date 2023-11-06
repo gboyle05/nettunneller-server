@@ -1,0 +1,4 @@
+# ninja log v5
+1	1608	1699231631548713000	CMakeFiles/0003_nettunneller.dir/main.cpp.o	c33852ab259e7cb7
+0	2077	1699231814318476500	CMakeFiles/nettunneller-server.dir/main.cpp.o	a49a5e1e0bba85ce
+2090	2260	1699231814502726900	nettunneller-server	f31e7bd72a0dfd05
