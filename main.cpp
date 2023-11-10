@@ -31,7 +31,7 @@ void createUser(const std::string& username, const std::string& shell) {
         }
         std::cout << "User '" << username << "' created successfully." << std::endl;
 
-        std::string createSshDirCmd = "sudo mkdir -p ~" + username + "/.ssh";
+        std::string createSshDirCmd = "sudo mkdir -p /home/" + username + "/.ssh";
         int createSshDirResult = system(createSshDirCmd.c_str());
 
         if (createSshDirResult != 0) {
@@ -45,7 +45,7 @@ void createUser(const std::string& username, const std::string& shell) {
 void createSshKeypair() {
     std::cout << "Creating ssh keypair..." << std::endl;
 
-    std::string createSshKeypairCmd = "ssh-keygen -qN '' -f ~/.ssh/id_rsa";
+    std::string createSshKeypairCmd = "ssh-keygen -qN '' -f /home/nettunneller/.ssh/id_rsa";
     int createSshKeypairResult = system(createSshKeypairCmd.c_str());
 
     if (createSshKeypairResult != 0) {
@@ -85,7 +85,21 @@ std::vector<Drone> parseCSV(const std::string& filename) {
     std::vector<Drone> drones;
     std::ifstream file(filename);
 
-    if (file.is_open()) {
+    if (!file) {
+        std::cerr << "The " << filename << " file does not exist. Creating it with example data." << std::endl;
+        std::ofstream createFile(filename);
+        createFile << "Drone 1, 9000\n";
+        createFile << "Drone 2, 9001\n";
+        createFile << "Drone 3, 9002\n";
+        createFile << "Drone 4, 9003\n";
+        createFile << "Drone 5, 9004\n";
+        createFile << "Drone 6, 9005\n";
+        createFile.close();
+        std::cerr << "Please edit " << filename << " to add more drones." << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        system("clear");
+    }
+    else {
         std::string line;
         while (std::getline(file, line)) {
             std::string name;
@@ -97,8 +111,6 @@ std::vector<Drone> parseCSV(const std::string& filename) {
             }
         }
         file.close();
-    } else {
-        std::cerr << "Failed to open " << filename << std::endl;
     }
 
     return drones;
@@ -128,6 +140,18 @@ void checkConnection(Drone& drone) {
     }
 }
 
+void updateDroneData(std::vector<Drone>& drones, const std::string& filename, int intervalSeconds) {
+    while (true) {
+        std::vector<Drone> updatedDrones = parseCSV(filename);
+
+        // Update the drones vector with the new data
+        // You can use a lock here to ensure thread safety if necessary
+        drones = updatedDrones;
+
+        std::this_thread::sleep_for(std::chrono::seconds(intervalSeconds));
+    }
+}
+
 // Function to display drone statuses in the console.
 void displayDroneStatuses(const std::vector<Drone>& drones) {
     system("clear"); // Clear the terminal (Linux/Unix)
@@ -144,6 +168,10 @@ void displayDroneStatuses(const std::vector<Drone>& drones) {
             std::cout << "Status: " << drone.status << std::endl;
         }
 
+        auto now = std::chrono::system_clock::now();
+        std::time_t xnow = std::chrono::system_clock::to_time_t(now);
+
+        std::cout << "Time: " << std::ctime(&xnow) << std::endl;
         std::cout << std::endl;
     }
 }
@@ -180,20 +208,24 @@ int main(int argc, char* argv[]) {
             const char* shell = "/bin/true";
             createUser(username, shell);
             createSshKeypair();
-//            changeSshDirectoryOwnership(username);
+            changeSshDirectoryOwnership(username);
 // TODO            To allow for ssh-copy-id
         } else {
             std::vector<Drone> drones = parseCSV("drones.csv");
-
             int updateIntervalSeconds = 10;
 
             std::thread updater(updateDroneStatuses, std::ref(drones), updateIntervalSeconds);
+            std::thread dataUpdater(updateDroneData, std::ref(drones), "drones.csv", updateIntervalSeconds);
+
+            displayDroneStatuses(drones);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
 
             while(true) {
                 displayDroneStatuses(drones);
-                std::this_thread::sleep_for(std::chrono::seconds(1));
+                std::this_thread::sleep_for(std::chrono::seconds(10));
             }
             updater.join();
+            dataUpdater.join();
         }
     return 0;
 }
